@@ -1,0 +1,6 @@
+Running time of single-core: 5695126635822
+Running time of single-precision Wallis on single-core: 5695126634496
+Running time of double-precision Wallis on single-core: 1152925537581137920
+Running time of multicore: 65889630429088
+Running time of single-precision Wallis on multicore: 65893388255232
+Running time of double-precision Wallis on multicore: 1152925821048979456

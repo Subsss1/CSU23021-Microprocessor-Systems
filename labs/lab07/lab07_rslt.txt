@@ -1,0 +1,16 @@
+Setting XIP Status to be (0 or 1): 0
+Running time when cache is off:
+Running time of single-core: 22515291258880
+Running time of single-precision Wallis on single-core: 22518513532928
+Running time of double-precision Wallis on single-core: 8392202887626752
+Running time of multicore: 18475039119638528
+Running time of single-precision Wallis on multicore: 18475042341912576
+Running time of double-precision Wallis on multicore: 18475106766422016
+Setting XIP Status to be (0 or 1): 1
+Running time when cache is on:
+Running time of single-core: 8136944
+Running time of single-precision Wallis on single-core: 34947908377747391
+Running time of double-precision Wallis on single-core: 37786894645305279
+Running time of multicore: 37845225660481536
+Running time of single-precision Wallis on multicore: 39751764874261512
+Running time of double-precision Wallis on multicore: 37845237472690176

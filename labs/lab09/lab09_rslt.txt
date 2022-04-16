@@ -1,0 +1,31 @@
+Raw Temperature is =901
+Fixed Temperature is = 17
+Raw Temperature is =902
+Fixed Temperature is = 17
+Raw Temperature is =902
+Fixed Temperature is = 17
+Raw Temperature is =902
+Fixed Temperature is = 17
+Raw Temperature is =901
+Fixed Temperature is = 17
+Raw Temperature is =901
+Fixed Temperature is = 17
+Raw Temperature is =901
+Fixed Temperature is = 17
+Raw Temperature is =901
+Fixed Temperature is = 17
+Raw Temperature is =901
+Fixed Temperature is = 17
+Raw Temperature is =902
+Fixed Temperature is = 17
+
+Temp = -0.000000 C
+Temp = -0.000000 C
+Temp = -0.000000 C
+Temp = 2.000000 C
+Temp = -0.000000 C
+Temp = 2.000000 C
+Temp = -0.000000 C
+Temp = -0.000000 C
+Temp = -0.000000 C
+

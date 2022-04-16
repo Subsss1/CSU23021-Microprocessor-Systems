@@ -1,0 +1,18 @@
+{
+    "version": 1,
+    "author": "CSU23021 Student",
+    "editor": "wokwi",
+    "parts": [
+      {
+        "type": "wokwi-pi-pico",
+        "id": "pico",
+        "top": 0,
+        "left": 0,
+        "attrs": { "env": "arduino-core" }
+      }
+    ],
+    "connections": [
+      [ "pico:GP0", "$serialMonitor:RX", "", [] ],
+      [ "pico:GP1", "$serialMonitor:TX", "", [] ]
+    ]
+  }

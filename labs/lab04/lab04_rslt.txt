@@ -1,0 +1,31 @@
+What is the entry point address (in hex) of the blink_asm application?
+r0             0x20000620          536872480
+r1             0x10000353          268436307
+r2             0x200001b0          536871344
+r3             0x2000026c          536871532
+r4             0x10000264          268436068
+r5             0x20041f01          537140993
+r6             0x18000000          402653184
+r7             0x0                 0
+r8             0xffffffff          -1
+r9             0xffffffff          -1
+r10            0xffffffff          -1
+r11            0xffffffff          -1
+r12            0x34000040          872415296
+sp             0x20042000          0x20042000
+
+
+What is the entry point address (in hex) of the “main_asm” function?
+Dump of assembler code from 0x10000360 to 0x1000037a:
+   0x10000360 <main_asm+0>:	movs	r0, #25
+   0x10000362 <main_asm+2>:	bl	0x1000030c <asm_gpio_init>
+   0x10000366 <main_asm+6>:	movs	r0, #25
+   0x10000368 <main_asm+8>:	movs	r1, #1
+   0x1000036a <main_asm+10>:	bl	0x10000314 <asm_gpio_set_dir>
+   0x1000036e <loop+0>:	ldr	r0, [pc, #36]	; (0x10000394 <led_set_state+8>)
+   0x10000370 <loop+2>:	bl	0x10000e24 <sleep_ms>
+   0x10000374 <loop+6>:	bl	0x1000037a <sub_toggle>
+   0x10000378 <loop+10>:	b.n	0x1000036e <loop>
+End of assembler dump.
+
+Describe each of the differences between the assembly that was written for the main_asm function and the version that was executed according to GDB.

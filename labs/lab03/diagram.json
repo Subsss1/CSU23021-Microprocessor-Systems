@@ -1,0 +1,37 @@
+{
+  "version": 1,
+  "author": "CSU23021 Minjuan Luo",
+  "editor": "wokwi",
+  "parts": [
+    {
+      "type": "wokwi-pi-pico",
+      "id": "pico",
+      "top": 0,
+      "left": 0,
+      "attrs": { "env": "arduino-community" }
+    },
+    {
+      "type": "wokwi-pushbutton",
+      "id": "btn1",
+      "top": 237.42,
+      "left": 10.35,
+      "attrs": { "color": "green" }
+    },
+    {
+      "type": "wokwi-resistor",
+      "id": "r1",
+      "top": 77.43,
+      "left": 116.36,
+      "rotate": 90,
+      "attrs": { "value": "1000" }
+    }
+  ],
+  "connections": [
+    [ "pico:GP0", "$serialMonitor:RX", "", [] ],
+    [ "pico:GP1", "$serialMonitor:TX", "", [] ],
+    [ "pico:3V3", "r1:1", "red", [ "h0" ] ],
+    [ "pico:GP21", "r1:2", "orange", [ "h0" ] ],
+    [ "btn1:2.r", "pico:GND.6", "black", [ "h182.34", "v-146.26" ] ],
+    [ "pico:GP21", "btn1:1.r", "orange", [ "h68.34", "v23.31" ] ]
+  ]
+}
