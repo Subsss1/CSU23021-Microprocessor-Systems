@@ -1,38 +1,15 @@
-
 #include <stdio.h>
-#include <stdlib.h>
 
 #include "pico/stdlib.h"
-#include "hardware/pio.h"
-#include "hardware/clocks.h"
-#include "lab09.pio.h"
 #include "hardware/adc.h"
+#include "lab09.pio.h"
 
 #define IS_RGBW true        // Will use RGBW format
 #define NUM_PIXELS 1        // There is 1 WS2812 device in the chain
-#define WS2812_PIN 28       // The GPIO pin that the WS2812 connected to
+#define lab09_PIN 28        // The GPIO pin that the WS2812 is connected to
 
-
-
-// Initialise a GPIO pin – see SDK for detail on gpio_init()
-void asm_gpio_init(uint pin) {
-    gpio_init(pin);
-}
-
-// Set direction of a GPIO pin – see SDK for detail on gpio_set_dir()
-void asm_gpio_set_dir(uint pin, bool out) {
-    gpio_set_dir(pin, out);
-}
-
-// Get the value of a GPIO pin – see SDK for detail on gpio_get()
-bool asm_gpio_get(uint pin) {
-    return gpio_get(pin);
-}
-
-// Set the value of a GPIO pin – see SDK for detail on gpio_put()
-void asm_gpio_put(uint pin, bool value) {
-    gpio_put(pin, value);
-}
+// Must declare the main assembly entry point before use.
+void main_asm();
 
 /**
  * @brief Wrapper function used to call the underlying PIO
@@ -47,100 +24,95 @@ static inline void put_pixel(uint32_t pixel_grb) {
     pio_sm_put_blocking(pio0, 0, pixel_grb << 8u);
 }
 
-
 /**
- * @brief LAB #09 - TEMPLATE
- *        Main entry point for the code - calls the main assembly
- *        function where the body of the code is implemented.
+ * @brief Function to generate an unsigned 32-bit composit GRB
+ *        value by combining the individual 8-bit paramaters for
+ *        red, green and blue together in the right order.
  * 
- * @return int      Returns exit-status zero on completion.
+ * @param r     The 8-bit intensity value for the red component
+ * @param g     The 8-bit intensity value for the green component
+ * @param b     The 8-bit intensity value for the blue component
+ * @return uint32_t Returns the resulting composit 32-bit RGB value
  */
-
 static inline uint32_t urgb_u32(uint8_t r, uint8_t g, uint8_t b) {
     return  ((uint32_t) (r) << 8)  |
             ((uint32_t) (g) << 16) |
             (uint32_t) (b);
 }
 
-int loop=0;
-int temperature (uint32_t rawADC){
-    
-    float temp= 437 - (100*(float)( rawADC)) / 215;
-    printf("Raw Temperature is = %u\n",rawADC);
-    char tempstring[5];
-    itoa(temp, tempstring, 10);
-    printf("Fixed Temperature is = %s\n",tempstring);
-     
-    //stdio_init_all();
-    //
-    // Configure ADC
-    //adc_init();
-    //adc_set_temp_sensor_enabled(true);
-    //adc_select_input(4);
-    //
-    // Primary Core 0 Loop
-    //uint16_t raw = adc_read();
-    //const float conversion_factor = 3.3f / (1<<12);
-    //float result = raw * conversion_factor;
-    //float tmp = 27 - (result -0.706)/0.001721;
-    //printf("Temp = %f C\n", tmp);
-
-    if( loop==0){
-        PIO pio = pio0;
-        uint offset = pio_add_program(pio, &ws2812_program);
-        ws2812_program_init(pio, 0, offset, WS2812_PIN, 800000, IS_RGBW);
-    }
-    if (temp>=20){
-        put_pixel(urgb_u32(0x3F, 0x00, 0x00));
-        
-     } else if (temp<20&&temp>=19) {
-            // temperature is orange
-        put_pixel(urgb_u32(255, 191, 0));
-       
-        
-     }else {
-            //set led to blue for cold
-             put_pixel(urgb_u32(0x00, 0x00, 0x3F));
-            
-      
-        }
-loop=1;
-    return 0;
+// Initialise the PIO interface with the WS2812 code
+void initialisePIO () {
+    PIO pio = pio0;
+    uint offset = pio_add_program(pio, &lab09_program);
+    lab09_program_init(pio, 0, offset, lab09_PIN, 800000, IS_RGBW);
 }
 
-// Must declare the main assembly entry point before use.
-void main_asm();
+// Initialise the RP2040 ADC and enable the temperature sensor
+void asm_adc_init () {
+    adc_init();                             // Initialise the ADC
+    adc_set_temp_sensor_enabled(true);      // Enable the temperature sensor
+}
+
+// Select an ADC input
+void asm_adc_select_input (uint input) {
+    adc_select_input(input);
+}
+
+// Read the ADC value from the temperature sensor
+uint16_t readTemperature () {
+    uint16_t result = adc_read();
+    return result;
+}
 
 /**
- * @brief EXAMPLE - WS2812_RGB
- *        Simple example to initialise the NeoPixel RGB LED on
- *        the MAKER-PI-PICO and then flash it in alternating
- *        colours between red, green and blue forever using
- *        one of the RP2040 built-in PIO controllers.
+ * @brief Function to take in raw ADC values and convert it to a
+ *        floating point representation, sets the RGB LED to  an
+ *        appropriate colour based on the temperature reading
+ *        -- red temp>30 C
+ *        -- orange 10 C< temp <30 C
+ *        -- green temp<10 C
  * 
- * @return int  Application return code (zero for success).
+ * @param rawADC     The raw ADC value that is read by the temperature sensor
+ */
+void floatTemperatureReading(uint16_t rawADC) {
+    const float conversion_factor = 3.3f / (1 << 12);
+    float temp = 27 - ((rawADC * conversion_factor) - 0.706)/0.001721;
+    printf("Temperature reading: %f C\n", temp);
+
+    if(temp <= 10){
+        // If temp is less than 10 C, set colour to green
+        put_pixel(urgb_u32(0x00, 0x7F, 0x00));
+    }
+    else if(temp >= 30){
+        // If temp is greater than 30 C, set colour to red
+        put_pixel(urgb_u32(0x3F, 0x00, 0x00));
+    }
+    else{
+        // If temp is between 10 C and 30 C, set colour to orange
+        put_pixel(urgb_u32(0xCC, 0x70, 0x00));
+    }
+}
+
+/**
+ * @brief LAB #09 - Reading temperatures and displaying colours
+ *        Main entry point for the code - calls the main assembly
+ *        function where the body of the code is implemented.
+ * 
+ * @return int      Returns exit-status zero on completion.
  */
 int main() {
- 
-    // Initialise all STDIO as we will be using the GPIOs
-    stdio_init_all();
-    
-    
+    stdio_init_all();              // Initialise all basic IO
+    initialisePIO();               // Initialise the PIO interface with the WS2812 code
+    printf("Lab09...\n");          // Basic print to console
+
     // Initialise the PIO interface with the WS2812 code
     PIO pio = pio0;
-    uint offset = pio_add_program(pio, &ws2812_program);
-    ws2812_program_init(pio, 0, offset, WS2812_PIN, 800000, IS_RGBW);
+    uint offset = pio_add_program(pio, &lab09_program);
+    lab09_program_init(pio, 0, offset, lab09_PIN, 800000, IS_RGBW);
 
-    //intialised led as red
-    put_pixel(urgb_u32(0x3F, 0x00, 0x00));
-    sleep_ms(500);
-    
-     main_asm();
-    
-    while(true) {
-    }
+    // Jump into the main assembly code subroutine.
+    main_asm();
 
-    // Should never get here due to infinite while-loop.
+    // Returning zero indicates everything went okay.
     return 0;
-
 }
